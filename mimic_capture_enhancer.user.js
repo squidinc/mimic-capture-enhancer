@@ -1,20 +1,28 @@
 // ==UserScript==
 // @name         Mimic Capture Planner Enhancer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.3
+// @version      1.6.4
 // @updateURL    https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @downloadURL  https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Melzidek and Asura's Mimic Capture Planner
 // @author       SQUIDinc & Claude
 // @match        *://mimic-capture-0654f0.gitlab.io/*
-// @grant        GM_info
+// @grant        none
 // ==/UserScript==
 
 (function() {
 'use strict';
 
 
-console.log(GM_info.script.name, " v", GM_info.script.version, " loaded");
+// WARNINGS:
+// - Keep "@grant none" in the header. Any other @grant (including GM_info)
+//   moves this script into an isolated context in the Userscripts app and in
+//   Tampermonkey's sandbox. There, page variables like top_winning_state_areas
+//   and setup_turns_remaining are invisible, so the coin display shows
+//   "Error" and the void-count fix silently does nothing.
+// - With "@grant none" the GM_info object is not available, so do not use it.
+
+console.log("Mimic Capture Planner Enhancer loaded");
 
 let initialized = false;
 
@@ -57,6 +65,14 @@ function initializeEnhancements() {
     initialized = true;
     
     console.log("Initializing enhancements...");
+    
+    // The site's script declares this at load time, so it must be visible by now.
+    // If it is not, this script is running in an isolated context (see the
+    // @grant warning at the top) and the coin display and void-count fix
+    // cannot work.
+    if (typeof window.top_winning_state_areas === 'undefined') {
+        console.error("Page variables are not visible to this script. Check that the header says @grant none.");
+    }
     
     // Add responsive CSS
     injectResponsiveCSS();
@@ -630,7 +646,7 @@ function keepBoardBelowCredits() {
     console.log("Board position now follows the credits");
 }
 
-console.log(GM_info.script.name, " v", GM_info.script.version, " ready");
+console.log("Mimic Capture Planner Enhancer ready");
 
 
 })();
