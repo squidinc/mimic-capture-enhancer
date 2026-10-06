@@ -1,20 +1,20 @@
 // ==UserScript==
-// @name         Mimic Capture Helper Enhancer
+// @name         Mimic Capture Planner Enhancer
 // @namespace    http://tampermonkey.net/
 // @version      1.6.1
 // @updateURL    https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @downloadURL  https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
-// @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Mimic Capture Planner
+// @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Melzidek and Asura's Mimic Capture Planner
 // @author       SQUIDinc & Claude
 // @match        *://mimic-capture-0654f0.gitlab.io/*
-// @grant        none
+// @grant        GM_info
 // ==/UserScript==
 
 (function() {
 'use strict';
 
 
-console.log("Mimic Capture Helper Enhancer v1.6 loaded");
+console.log(GM_info.script.name, " v", GM_info.script.version, " loaded");
 
 let initialized = false;
 
@@ -562,7 +562,7 @@ function fixSetupTurnsRemainingSync() {
     console.log("Patched setup_turns_remaining sync bug - validation should now work correctly");
 }
 
-console.log("Mimic Capture Helper Enhancer v1.6 ready");
+console.log(GM_info.script.name, " v", GM_info.script.version, " ready");
 
 
 })();
