@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Mimic Capture Planner Enhancer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.1
+// @version      1.6.2
 // @updateURL    https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @downloadURL  https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Melzidek and Asura's Mimic Capture Planner
@@ -71,6 +71,9 @@ function initializeEnhancements() {
     
     // Fix the setup_turns_remaining variable shadowing bug (see comments below)
     fixSetupTurnsRemainingSync();
+    
+    // Keep the absolutely positioned board from overlapping the credits
+    keepBoardBelowCredits();
     
     console.log("Initialization complete");
 }
@@ -560,6 +563,48 @@ function fixSetupTurnsRemainingSync() {
     syncSetupTurnsRemaining();
 
     console.log("Patched setup_turns_remaining sync bug - validation should now work correctly");
+}
+
+function keepBoardBelowCredits() {
+    // The board tiles are absolutely positioned, so they take up no space in
+    // the page flow. Their top edge comes from the site's --polygon-top-start
+    // variable (15vh on wide screens, 25vh on narrow ones), which ignores how
+    // tall the panel rows and credits above it actually are. On wide windows
+    // the credits end up underneath the first rows of the board.
+    //
+    // Fix: measure where the credits really end and feed that into
+    // --polygon-top-start, so the board always starts just below them.
+    //
+    // WARNINGS:
+    // - Relies on the site's CSS using --polygon-top-start for every tile's
+    //   top offset. If the site renames that variable, the board will stop moving.
+    // - Relies on the credits (.host) being the last element above the board.
+    const root = document.documentElement;
+    const host = document.querySelector('.host');
+    if (!host) {
+        console.error("Could not find .host element, board position left unchanged");
+        return;
+    }
+
+    const GAP_BELOW_CREDITS_PX = 12;
+
+    function updateBoardTop() {
+        // Tile offsets are measured from the top of the page, so convert the
+        // viewport-relative rect into a page coordinate.
+        const hostBottom = host.getBoundingClientRect().bottom + window.scrollY;
+        const hostMarginBottom = parseFloat(getComputedStyle(host).marginBottom) || 0;
+        const boardTop = Math.ceil(hostBottom + hostMarginBottom + GAP_BELOW_CREDITS_PX);
+        root.style.setProperty('--polygon-top-start', boardTop + 'px');
+    }
+
+    updateBoardTop();
+
+    // The body only contains in-flow content (the board is absolute), so its
+    // size changes exactly when the panel or credits wrap differently, such as
+    // on window resize, rotation, or when the stats line gets longer.
+    new ResizeObserver(updateBoardTop).observe(document.body);
+
+    console.log("Board position now follows the credits");
 }
 
 console.log(GM_info.script.name, " v", GM_info.script.version, " ready");
