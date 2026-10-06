@@ -2,7 +2,7 @@
 // @name         Mimic Capture Helper Enhancer
 // @namespace    http://tampermonkey.net/
 // @version      1.6
-// @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Mimic Capture Helper
+// @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Mimic Capture Planner
 // @author       SQUIDinc & Claude
 // @match        *://mimic-capture-0654f0.gitlab.io/*
 // @grant        none
@@ -496,10 +496,10 @@ function extractAndDisplayReward() {
     
     if (rewardRow && rewardCountSpan && tileCountSpan) {
         if (rewardTiles !== null && rewardTiles > 0) {
-            // Formula: tiles * 30 (the base rate per reward tile). The game also
-            // adds a variable bonus on top (observed anywhere from 0-15 in
-            // increments of 5), but since that amount appears random, it can't
-            // be predicted here - this displays only the base, guaranteed amount.
+            // Formula: tiles * 30 (the base rate per reward tile). The player
+            // can also gain additional capture coin rewards during gameplay
+            // (observed anywhere from 0-15 in increments of 5), but since that amount
+            // cannot be predicted here, this displays only the base, guaranteed amount.
             const captureCoins = rewardTiles * 30;
             rewardCountSpan.textContent = captureCoins.toLocaleString();
             tileCountSpan.textContent = rewardTiles;
