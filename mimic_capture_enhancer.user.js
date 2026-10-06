@@ -110,9 +110,17 @@ function injectResponsiveCSS() {
                 font-size: clamp(11px, 2.5vw, 20px) !important;
             }
         }
+          
+        /* The site adds 30px of bottom margin to the credits on narrow screens.
+           The board now positions itself from the measured credits height, so
+           that extra space is only wasted room. */
+        @media (max-width: 440px) {
+            .developers, .host {
+                margin-bottom: 5px !important;
+            }
+        }
         
-        /* Ensure credits are always visible above board */
-        .developers, .host {
+        /* Ensure credits are always visible above board */        .developers, .host {
             position: relative !important;
             z-index: 10 !important;
         }
