@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Mimic Capture Planner Enhancer
 // @namespace    http://tampermonkey.net/
-// @version      1.6.2
+// @version      1.6.3
 // @updateURL    https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @downloadURL  https://raw.githubusercontent.com/squidinc/mimic-capture-enhancer/main/mimic_capture_enhancer.user.js
 // @description  Add Capture Coin display, running average/high/low tracking, and center tile protection to Melzidek and Asura's Mimic Capture Planner
@@ -24,6 +24,10 @@ let initialized = false;
 // the array) instead of juggling separate running totals that could get
 // out of sync.
 const STORAGE_KEY_HISTORY = 'mimicCaptureEnhancer_history';
+
+// Whether the "Store result" checkbox is on. Saved separately so the choice
+// survives the Reset button, which reloads the whole page.
+const STORAGE_KEY_STORE_ENABLED = 'mimicCaptureEnhancer_storeEnabled';
 
 // Lucide icons (inline SVG, MIT licensed) - kept minimal so no external script load is needed
 const ICON_UNDO = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>`;
@@ -312,6 +316,17 @@ function addAverageTracker() {
     `;
 
     panel.querySelector('tbody').appendChild(newRow);
+
+    // Restore the "Store result" choice from the last visit. The Reset button
+    // reloads the page, which would otherwise put the checkbox back to its
+    // default of checked and let a test board slip into the history.
+    // Only an explicit 'false' turns it off, so a first run defaults to on.
+    const storeCheckbox = document.querySelector('#store-result-checkbox');
+    storeCheckbox.checked = localStorage.getItem(STORAGE_KEY_STORE_ENABLED) !== 'false';
+    storeCheckbox.addEventListener('change', function() {
+        localStorage.setItem(STORAGE_KEY_STORE_ENABLED, storeCheckbox.checked);
+        console.log("Store result set to", storeCheckbox.checked);
+    });
 
     // Wire up undo button - removes only the most recent entry
     document.querySelector('#undo-last-btn').addEventListener('click', function() {
